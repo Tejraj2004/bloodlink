@@ -1,0 +1,83 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-gray-900">📋 Manage Blood Requests</h1>
+      <p class="text-gray-500 mt-1">View and manage all blood requests on the platform.</p>
+    </div>
+  </div>
+
+  <div class="flex gap-2 mb-8 flex-wrap">
+    <a href="/admin" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition">📊 Dashboard</a>
+    <a href="/admin/users" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition">👥 Users</a>
+    <a href="/admin/requests" class="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-semibold text-sm">📋 Requests</a>
+  </div>
+
+  <!-- Filter -->
+  <div class="flex flex-wrap gap-2 mb-6">
+    <% ['all','pending','matched','fulfilled','expired'].forEach(s => { %>
+      <a href="/admin/requests<%= s !== 'all' ? '?status=' + s : '' %>" class="px-4 py-2 rounded-xl text-sm font-semibold border transition
+        <%= currentFilter === s ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' %>">
+        <%= s.charAt(0).toUpperCase() + s.slice(1) %> (<%= requests.filter(r => s === 'all' || r.status === s).length %>)
+      </a>
+    <% }) %>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Patient</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Blood</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Hospital</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Posted By</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Urgency</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Status</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Date</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Change Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <% requests.forEach(r => { %>
+            <tr class="hover:bg-gray-50 transition">
+              <td class="px-6 py-4 font-medium text-gray-800"><%= r.patientName %> <span class="text-gray-400 font-normal">(Age <%= r.patientAge %>)</span></td>
+              <td class="px-6 py-4"><span class="font-black text-blood-700 bg-red-50 px-2 py-1 rounded-lg"><%= r.bloodGroupNeeded %></span></td>
+              <td class="px-6 py-4 text-gray-500 max-w-xs"><div class="truncate"><%= r.hospitalName %></div></td>
+              <td class="px-6 py-4 text-gray-500"><%= r.postedBy ? r.postedBy.name : '—' %></td>
+              <td class="px-6 py-4">
+                <span class="text-xs font-bold uppercase px-2 py-1 rounded-full
+                  <%= r.urgency === 'critical' ? 'bg-red-600 text-white' : r.urgency === 'high' ? 'bg-orange-500 text-white' : r.urgency === 'medium' ? 'bg-yellow-400 text-gray-800' : 'bg-blue-400 text-white' %>">
+                  <%= r.urgency %>
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs font-bold px-2 py-1 rounded-full
+                  <%= r.status === 'fulfilled' ? 'bg-green-100 text-green-700' : r.status === 'matched' ? 'bg-blue-100 text-blue-700' : r.status === 'expired' ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700' %>">
+                  <%= r.status %>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-gray-400 whitespace-nowrap"><%= new Date(r.createdAt).toLocaleDateString('en-IN') %></td>
+              <td class="px-6 py-4">
+                <form action="/admin/requests/<%= r._id %>/status" method="POST" class="flex gap-1">
+                  <select name="status" class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none">
+                    <% ['pending','matched','fulfilled','expired'].forEach(s => { %>
+                      <option value="<%= s %>" <%= r.status === s ? 'selected' : '' %>><%= s %></option>
+                    <% }) %>
+                  </select>
+                  <button type="submit" class="text-xs bg-purple-500 text-white px-2 py-1 rounded-lg hover:bg-purple-600 transition">Update</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% if (requests.length === 0) { %>
+        <div class="text-center py-16 text-gray-400">No requests found for this filter.</div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

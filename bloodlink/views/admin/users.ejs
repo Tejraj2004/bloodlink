@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-gray-900">👥 Manage Users</h1>
+      <p class="text-gray-500 mt-1">View, edit roles, or remove users from the platform.</p>
+    </div>
+  </div>
+
+  <div class="flex gap-2 mb-8 flex-wrap">
+    <a href="/admin" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition">📊 Dashboard</a>
+    <a href="/admin/users" class="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-semibold text-sm">👥 Users</a>
+    <a href="/admin/requests" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition">📋 Requests</a>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+      <span class="font-bold text-gray-800"><%= users.length %> total users</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">User</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Email</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Phone</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Role</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Auth</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Joined</th>
+            <th class="text-left px-6 py-4 text-gray-500 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <% users.forEach(u => { %>
+            <tr class="hover:bg-gray-50 transition">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-blood-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    <%= u.name.charAt(0).toUpperCase() %>
+                  </div>
+                  <span class="font-medium text-gray-800"><%= u.name %></span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-gray-500"><%= u.email %></td>
+              <td class="px-6 py-4 text-gray-500"><%= u.phone || '—' %></td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 rounded-full text-xs font-bold <%= u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600' %>">
+                  <%= u.role %>
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs <%= u.googleId ? 'text-blue-600' : 'text-gray-400' %> font-medium">
+                  <%= u.googleId ? '🔵 Google' : '📧 Email' %>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-gray-400"><%= new Date(u.createdAt).toLocaleDateString('en-IN') %></td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <form action="/admin/users/<%= u._id %>/role" method="POST" class="flex gap-1">
+                    <select name="role" class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none">
+                      <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                      <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                    </select>
+                    <button type="submit" class="text-xs bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition">Save</button>
+                  </form>
+                  <form action="/admin/users/<%= u._id %>/delete" method="POST" onsubmit="return confirm('Delete <%= u.name %>? This cannot be undone.')">
+                    <button type="submit" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-lg hover:bg-red-200 transition">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

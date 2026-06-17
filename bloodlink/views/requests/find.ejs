@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-black text-gray-900">🔍 Active Blood Requests</h1>
+      <p class="text-gray-500 mt-1">Browse all pending requests — register as donor to accept and help.</p>
+    </div>
+    <a href="/requests/new" class="btn-primary px-6 py-3 text-white rounded-xl font-bold shadow flex items-center gap-2 self-start">🚨 Post New Request</a>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="flex flex-wrap gap-2 mb-6">
+    <% ['all','critical','high','medium','low'].forEach(u => { %>
+      <a href="?urgency=<%= u %>" class="px-4 py-2 rounded-xl text-sm font-semibold border transition
+        <%= (typeof urgencyFilter !== 'undefined' && urgencyFilter === u) || (u === 'all' && typeof urgencyFilter === 'undefined') ? 'bg-blood-600 text-white border-blood-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' %>">
+        <%= u === 'all' ? '📋 All' : u === 'critical' ? '🔴 Critical' : u === 'high' ? '🟠 High' : u === 'medium' ? '🟡 Medium' : '🔵 Low' %>
+      </a>
+    <% }) %>
+    <% ['A+','A-','B+','B-','O+','O-','AB+','AB-'].forEach(bg => { %>
+      <a href="?bloodGroup=<%= bg %>" class="px-3 py-2 rounded-xl text-xs font-bold border bg-white text-gray-600 border-gray-200 hover:bg-red-50 hover:border-blood-300 hover:text-blood-700 transition"><%= bg %></a>
+    <% }) %>
+  </div>
+
+  <% if (requests.length === 0) { %>
+    <div class="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="text-7xl mb-4">🎉</div>
+      <h3 class="text-2xl font-bold text-gray-600 mb-2">No Active Requests Right Now</h3>
+      <p class="text-gray-400">All caught up! Check back later or be the first to post a request.</p>
+    </div>
+  <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <% requests.forEach(r => { %>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm card-hover overflow-hidden">
+          <!-- Urgency stripe -->
+          <div class="h-1.5 <%= r.urgency === 'critical' ? 'bg-red-600' : r.urgency === 'high' ? 'bg-orange-500' : r.urgency === 'medium' ? 'bg-yellow-400' : 'bg-blue-400' %>"></div>
+          <div class="p-5">
+            <div class="flex justify-between items-start mb-3">
+              <div class="w-14 h-14 rounded-2xl bg-red-50 border-2 border-red-100 flex items-center justify-center">
+                <span class="text-xl font-black gradient-text"><%= r.bloodGroupNeeded %></span>
+              </div>
+              <span class="text-xs font-bold uppercase px-3 py-1 rounded-full
+                <%= r.urgency === 'critical' ? 'bg-red-600 text-white' : r.urgency === 'high' ? 'bg-orange-500 text-white' : r.urgency === 'medium' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white' %>">
+                <%= r.urgency === 'critical' ? '🔴' : r.urgency === 'high' ? '🟠' : r.urgency === 'medium' ? '🟡' : '🔵' %> <%= r.urgency %>
+              </span>
+            </div>
+            <h3 class="font-bold text-gray-800 text-lg mb-1"><%= r.patientName %></h3>
+            <p class="text-sm text-gray-500 mb-3">Age <%= r.patientAge %> • <%= r.unitsNeeded %> unit(s) needed</p>
+            <div class="space-y-1.5 text-sm text-gray-600 mb-4">
+              <div class="flex items-start gap-2"><span>🏥</span><span><%= r.hospitalName %></span></div>
+              <div class="flex items-start gap-2"><span>📍</span><span class="line-clamp-1"><%= r.hospitalAddress %></span></div>
+              <div class="flex items-start gap-2"><span>📅</span><span><%= new Date(r.createdAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) %></span></div>
+              <% if (r.notes) { %>
+                <div class="flex items-start gap-2"><span>📝</span><span class="line-clamp-2 text-gray-500"><%= r.notes %></span></div>
+              <% } %>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+              <div class="text-xs text-gray-400">by <%= r.postedBy ? r.postedBy.name : 'Anonymous' %></div>
+              <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/dashboard" class="btn-primary px-4 py-2 text-white rounded-xl text-sm font-bold">
+                  💪 I Can Help
+                </a>
+              <% } else { %>
+                <a href="/auth/login" class="btn-primary px-4 py-2 text-white rounded-xl text-sm font-bold">
+                  Login to Help
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    <p class="text-center text-sm text-gray-400 mt-8">Showing <%= requests.length %> active request(s). Login and register as donor to accept requests.</p>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

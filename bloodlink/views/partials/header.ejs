@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            blood: { 50:'#fff1f1', 100:'#ffe0e0', 200:'#ffc0c0', 300:'#ff8f8f', 400:'#ff5050', 500:'#ff1a1a', 600:'#e60000', 700:'#c00000', 800:'#9a0000', 900:'#7a0000' },
+          },
+          animation: { 'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite', 'bounce-slow':'bounce 2s infinite', 'heartbeat':'heartbeat 1.5s ease-in-out infinite' },
+          keyframes: { heartbeat:{'0%,100%':{transform:'scale(1)'},'14%':{transform:'scale(1.15)'},'28%':{transform:'scale(1)'},'42%':{transform:'scale(1.1)'},'70%':{transform:'scale(1)'}} }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .gradient-text { background: linear-gradient(135deg, #c00000, #ff5050); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.95); }
+    .blood-drop { animation: heartbeat 1.5s ease-in-out infinite; }
+    .nav-link { transition: all 0.2s; }
+    .nav-link:hover { color: #c00000; }
+    .btn-primary { background: linear-gradient(135deg, #c00000, #e60000); transition: all 0.3s; }
+    .btn-primary:hover { background: linear-gradient(135deg, #9a0000, #c00000); transform: translateY(-1px); box-shadow: 0 8px 25px rgba(192,0,0,0.4); }
+    .card-hover { transition: all 0.3s; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+    .urgency-critical { background: #fee2e2; border-left: 4px solid #dc2626; }
+    .urgency-high { background: #fff7ed; border-left: 4px solid #ea580c; }
+    .urgency-medium { background: #fefce8; border-left: 4px solid #ca8a04; }
+    .urgency-low { background: #eff6ff; border-left: 4px solid #2563eb; }
+    .compat-yes { color: #16a34a; }
+    .compat-no { color: #dc2626; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background:#f1f1f1; } ::-webkit-scrollbar-thumb { background:#c00000; border-radius:3px; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navbar -->
+<nav class="glass shadow-lg sticky top-0 z-50 border-b border-red-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <a href="/" class="flex items-center gap-2">
+        <span class="text-3xl blood-drop">🩸</span>
+        <span class="text-xl font-black gradient-text">BloodLink</span>
+      </a>
+      <div class="hidden md:flex items-center gap-1">
+        <a href="/" class="nav-link px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-red-50">🏠 Home</a>
+        <a href="/requests/find" class="nav-link px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-red-50">🔍 Find Donor</a>
+        <a href="/requests/new" class="nav-link px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-red-50">🚨 Post Request</a>
+        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+          <a href="/admin" class="nav-link px-4 py-2 rounded-lg text-purple-700 font-medium hover:bg-purple-50">🛡️ Admin</a>
+        <% } else if (typeof user === 'undefined' || !user) { %>
+          <a href="/auth/login?redirect=/admin" class="nav-link px-4 py-2 rounded-lg text-purple-700 font-medium hover:bg-purple-50">🛡️ Admin</a>
+        <% } %>
+      </div>
+      <div class="flex items-center gap-3">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/dashboard" class="flex items-center gap-2 text-gray-700 hover:text-blood-700 font-medium">
+            <div class="w-8 h-8 rounded-full bg-blood-600 flex items-center justify-center text-white text-sm font-bold">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <span class="hidden sm:block"><%= user.name.split(' ')[0] %></span>
+          </a>
+          <a href="/auth/logout" class="px-4 py-2 border border-blood-600 text-blood-700 rounded-lg hover:bg-blood-50 font-medium text-sm transition">Logout</a>
+        <% } else { %>
+          <a href="/auth/login" class="px-4 py-2 text-blood-700 font-medium hover:text-blood-900">Login</a>
+          <a href="/auth/register" class="btn-primary px-5 py-2 text-white rounded-lg font-semibold text-sm shadow-md">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
