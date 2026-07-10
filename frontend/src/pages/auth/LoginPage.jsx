@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useGoogleLogin } from '@react-oauth/google'
+// import { useGoogleLogin } from '@react-oauth/google'
+import { GoogleLogin } from '@react-oauth/google'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Droplets, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -42,20 +43,20 @@ export default function LoginPage() {
     } finally { setLoading(false) }
   }
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      setGoogleLoading(true)
-      try {
-        await googleLogin(response.access_token, form.role)
-        toast.success('Logged in with Google!')
-        navigate(from, { replace: true })
-      } catch (err) {
-        const msg = err.response?.data?.message || 'Google login failed'
-        setError(msg); toast.error(msg)
-      } finally { setGoogleLoading(false) }
-    },
-    onError: () => { setError('Google sign-in failed'); setGoogleLoading(false) },
-  })
+  // const handleGoogleLogin = useGoogleLogin({
+  //   onSuccess: async (response) => {
+  //     setGoogleLoading(true)
+  //     try {
+  //       await googleLogin(response.access_token, form.role)
+  //       toast.success('Logged in with Google!')
+  //       navigate(from, { replace: true })
+  //     } catch (err) {
+  //       const msg = err.response?.data?.message || 'Google login failed'
+  //       setError(msg); toast.error(msg)
+  //     } finally { setGoogleLoading(false) }
+  //   },
+  //   onError: () => { setError('Google sign-in failed'); setGoogleLoading(false) },
+  // })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4">
@@ -134,7 +135,7 @@ export default function LoginPage() {
 
           <div className="divider"><span className="text-gray-400 text-sm">or continue with</span></div>
 
-          <button onClick={() => handleGoogleLogin()} disabled={googleLoading}
+          {/* <button onClick={() => handleGoogleLogin()} disabled={googleLoading}
             className="btn-white w-full justify-center py-3 text-sm font-semibold">
             {googleLoading ? <Loader2 size={18} className="animate-spin"/> :
               <svg width="18" height="18" viewBox="0 0 24 24">
@@ -145,7 +146,42 @@ export default function LoginPage() {
               </svg>
             }
             Continue with Google
-          </button>
+          </button> */}
+          <div className="w-full flex justify-center">
+  <GoogleLogin
+    onSuccess={async (credentialResponse) => {
+      try {
+        setGoogleLoading(true)
+
+        await googleLogin(
+          credentialResponse.credential,
+          form.role
+        )
+
+        toast.success("Logged in with Google!")
+        navigate(from, { replace: true })
+      } catch (err) {
+        const msg =
+          err.response?.data?.message || "Google login failed"
+
+        setError(msg)
+        toast.error(msg)
+      } finally {
+        setGoogleLoading(false)
+      }
+    }}
+    onError={() => {
+      setError("Google sign-in failed")
+      toast.error("Google sign-in failed")
+      setGoogleLoading(false)
+    }}
+    theme="outline"
+    size="large"
+    text="continue_with"
+    shape="rectangular"
+    width="360"
+  />
+</div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
             By signing in you agree to our{' '}
